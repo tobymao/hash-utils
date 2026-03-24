@@ -87,6 +87,21 @@ class TestDictHash:
         d2 = {"a": "xx"}
         assert dict_hash(d1) != dict_hash(d2)
 
+    def test_int_keys(self):
+        d1 = {1: "a", 2: "b"}
+        d2 = {1: "a", 2: "b"}
+        assert dict_hash(d1) == dict_hash(d2)
+
+    def test_int_keys_differ(self):
+        d1 = {1: "a"}
+        d2 = {2: "a"}
+        assert dict_hash(d1) != dict_hash(d2)
+
+    def test_tuple_keys(self):
+        d1 = {(1, 2): "a"}
+        d2 = {(1, 3): "a"}
+        assert dict_hash(d1) != dict_hash(d2)
+
     def test_returns_int(self):
         assert isinstance(dict_hash({"a": 1}), int)
 
@@ -168,6 +183,16 @@ class TestShapeHash:
         d1 = {"a": 1, "b": 2}
         d2 = {"b": 2, "a": 1}
         assert shape_hash(d1) == shape_hash(d2)
+
+    def test_int_keys(self):
+        d1 = {1: "a", 2: "b"}
+        d2 = {1: "x", 2: "y"}
+        assert shape_hash(d1) == shape_hash(d2)
+
+    def test_int_keys_differ(self):
+        d1 = {1: "a"}
+        d2 = {2: "a"}
+        assert shape_hash(d1) != shape_hash(d2)
 
     def test_returns_int(self):
         assert isinstance(shape_hash({"a": 1}), int)
