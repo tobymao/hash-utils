@@ -35,11 +35,11 @@ jobs:
             arch: x86_64
             skip: "*-manylinux_*"
             name: linux-x86_64-musllinux
-          - os: ubuntu-latest-arm
+          - os: ubuntu-24.04-arm
             arch: aarch64
             skip: "*-musllinux_*"
             name: linux-aarch64-manylinux
-          - os: ubuntu-latest-arm
+          - os: ubuntu-24.04-arm
             arch: aarch64
             skip: "*-manylinux_*"
             name: linux-aarch64-musllinux
