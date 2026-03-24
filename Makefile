@@ -1,4 +1,4 @@
-.PHONY: install install-release build test test-compiled style clean
+.PHONY: install install-release build test test-compiled bench style clean
 
 install:
 	MYPYC_OPT_LEVEL=0 pip install -e ".[dev]"
@@ -13,6 +13,9 @@ test:
 	pytest -v
 
 test-compiled: build test
+
+bench:
+	python benchmarks/bench.py
 
 style:
 	ruff check --fix .
