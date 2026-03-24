@@ -83,13 +83,12 @@ def main() -> None:
         from hash_utils import dict_hash, shape_hash
 
         bench("dict_hash (mypyc)", dict_hash, dicts)
-        bench("shape_hash (mypyc)", shape_hash, dicts)
 
     bench("hash(json.dumps(sort_keys=True))", json_hash, dicts)
 
-    # Dedup effectiveness
-    shapes = {pure.shape_hash(d) for d in dicts}
-    print(f"\nUnique shapes: {len(shapes)} / {len(dicts)}")
+    if is_compiled:
+        bench("shape_hash (mypyc)", shape_hash, dicts)
+
 
 
 if __name__ == "__main__":
