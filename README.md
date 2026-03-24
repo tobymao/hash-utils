@@ -10,7 +10,7 @@ Fast deterministic dict hashing via mypyc.
 ## Install
 
 ```bash
-pip install hash-utils
+pip install fast-hash-utils
 ```
 
 ## Usage
@@ -34,14 +34,13 @@ shape_hash(d1) == shape_hash(d2)
 
 ## Performance
 
-Compiled via mypyc to native C. ~400K ops/s for nested dicts on a single core.
+Compiled via mypyc to native C. ~335K ops/s for nested dicts on a single core.
 
 | Method | ops/s | Deterministic |
 |---|---|---|
-| `shape_hash` (mypyc) | 445K | Yes |
-| `dict_hash` (mypyc) | 405K | Yes |
-| `hash(repr())` | 312K | No |
-| `json.dumps + hash` | 206K | Yes |
+| `shape_hash` (mypyc) | 335K | Yes |
+| `dict_hash` (mypyc) | 334K | Yes |
+| `json.dumps + hash` | 112K | Yes |
 
 ## Development
 
@@ -49,7 +48,7 @@ Compiled via mypyc to native C. ~400K ops/s for nested dicts on a single core.
 python -m venv .venv && source .venv/bin/activate
 make install    # editable install with dev deps
 make test       # run tests (pure Python or compiled)
-make lint       # ruff check + format check
+make style      # ruff check --fix + format
 make clean      # remove build artifacts
 ```
 

@@ -54,17 +54,19 @@ def dict_hash(d: Dict[object, object]) -> int:
             h = _mix(h, _hash_to_i64(item))
             h = _mix(h, i64(len(item)))
         elif isinstance(item, dict):
-            h = _mix(h, i64(len(item)))
             keys: List[str] = sorted(item.keys())
-            i: i64 = i64(len(keys)) - 1
+            n: i64 = i64(len(keys))
+            h = _mix(h, n)
+            i: i64 = n - 1
             while i >= 0:
                 k: str = keys[i]
+                h = _mix(h, _hash_to_i64(k))
                 stack.append(item[k])
-                stack.append(k)
                 i -= 1
         elif isinstance(item, list):
-            h = _mix(h, i64(len(item)))
-            i = i64(len(item)) - 1
+            n = i64(len(item))
+            h = _mix(h, n)
+            i = n - 1
             while i >= 0:
                 stack.append(item[i])
                 i -= 1
@@ -99,9 +101,10 @@ def shape_hash(d: Dict[object, object]) -> int:
             h = _mix(h, _TAG_STR)
         elif isinstance(item, dict):
             h = _mix(h, _TAG_DICT)
-            h = _mix(h, i64(len(item)))
             keys: List[str] = sorted(item.keys())
-            i: i64 = i64(len(keys)) - 1
+            n: i64 = i64(len(keys))
+            h = _mix(h, n)
+            i: i64 = n - 1
             while i >= 0:
                 k: str = keys[i]
                 h = _mix(h, _hash_to_i64(k))
@@ -109,8 +112,9 @@ def shape_hash(d: Dict[object, object]) -> int:
                 i -= 1
         elif isinstance(item, list):
             h = _mix(h, _TAG_LIST)
-            h = _mix(h, i64(len(item)))
-            i = i64(len(item)) - 1
+            n = i64(len(item))
+            h = _mix(h, n)
+            i = n - 1
             while i >= 0:
                 stack.append(item[i])
                 i -= 1
