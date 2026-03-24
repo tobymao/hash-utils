@@ -21,7 +21,7 @@ jobs:
           name: sdist
           path: dist/*.tar.gz
 
-  wheels-linux-x86_64:
+  wheels-linux-x86_64-manylinux:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,7 +34,61 @@ jobs:
           CIBW_BUILD: cp39-* cp310-* cp311-* cp312-* cp313-* cp314-*
       - uses: actions/upload-artifact@v4
         with:
-          name: wheels-linux-x86_64
+          name: wheels-linux-x86_64-manylinux
+          path: wheelhouse/*.whl
+
+  wheels-linux-x86_64-musllinux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pypa/cibuildwheel@v2.23
+        env:
+          CIBW_ARCHS: x86_64
+          CIBW_SKIP: pp* *-manylinux_*
+          CIBW_BUILD: cp39-* cp310-* cp311-* cp312-* cp313-* cp314-*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-x86_64-musllinux
+          path: wheelhouse/*.whl
+
+  wheels-linux-aarch64-manylinux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+      - uses: pypa/cibuildwheel@v2.23
+        env:
+          CIBW_ARCHS: aarch64
+          CIBW_SKIP: pp* *-musllinux_*
+          CIBW_BUILD: cp39-* cp310-* cp311-* cp312-* cp313-* cp314-*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-aarch64-manylinux
+          path: wheelhouse/*.whl
+
+  wheels-linux-aarch64-musllinux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+      - uses: pypa/cibuildwheel@v2.23
+        env:
+          CIBW_ARCHS: aarch64
+          CIBW_SKIP: pp* *-manylinux_*
+          CIBW_BUILD: cp39-* cp310-* cp311-* cp312-* cp313-* cp314-*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-aarch64-musllinux
           path: wheelhouse/*.whl
 
   wheels-macos-x86_64:
@@ -86,7 +140,15 @@ jobs:
           path: wheelhouse/*.whl
 
   publish:
-    needs: [sdist, wheels-linux-x86_64, wheels-macos-x86_64, wheels-macos-arm64, wheels-windows-x86_64]
+    needs:
+      - sdist
+      - wheels-linux-x86_64-manylinux
+      - wheels-linux-x86_64-musllinux
+      - wheels-linux-aarch64-manylinux
+      - wheels-linux-aarch64-musllinux
+      - wheels-macos-x86_64
+      - wheels-macos-arm64
+      - wheels-windows-x86_64
     runs-on: ubuntu-latest
     permissions:
       id-token: write
