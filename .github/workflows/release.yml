@@ -25,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ["cp39", "cp310", "cp311", "cp312", "cp313"]
+        python: ["cp39", "cp310", "cp311", "cp312", "cp313", "cp314"]
         platform:
           - os: ubuntu-latest
             arch: x86_64
@@ -60,7 +60,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: pypa/cibuildwheel@v2.23
+      - uses: pypa/cibuildwheel@v3.4
         env:
           CIBW_ARCHS: ${{ matrix.platform.arch }}
           CIBW_BUILD: "${{ matrix.python }}-*"
