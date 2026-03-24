@@ -90,6 +90,5 @@ def main() -> None:
         bench("shape_hash (mypyc)", shape_hash, dicts)
 
 
-
 if __name__ == "__main__":
     main()
