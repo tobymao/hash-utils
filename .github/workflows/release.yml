@@ -35,16 +35,14 @@ jobs:
             arch: x86_64
             skip: "*-manylinux_*"
             name: linux-x86_64-musllinux
-          - os: ubuntu-latest
+          - os: ubuntu-latest-arm
             arch: aarch64
             skip: "*-musllinux_*"
             name: linux-aarch64-manylinux
-            qemu: true
-          - os: ubuntu-latest
+          - os: ubuntu-latest-arm
             arch: aarch64
             skip: "*-manylinux_*"
             name: linux-aarch64-musllinux
-            qemu: true
           - os: macos-latest
             arch: x86_64
             skip: ""
@@ -62,10 +60,6 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: docker/setup-qemu-action@v3
-        if: matrix.platform.qemu
-        with:
-          platforms: arm64
       - uses: pypa/cibuildwheel@v2.23
         env:
           CIBW_ARCHS: ${{ matrix.platform.arch }}
