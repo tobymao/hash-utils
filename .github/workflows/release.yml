@@ -21,134 +21,61 @@ jobs:
           name: sdist
           path: dist/*.tar.gz
 
-  wheels-linux-x86_64-manylinux:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: pypa/cibuildwheel@v2.23
-        env:
-          CIBW_ARCHS: x86_64
-          CIBW_SKIP: pp* *-musllinux_*
-          CIBW_BUILD: cp39-* cp310-* cp311-* cp312-* cp313-* cp314-*
-      - uses: actions/upload-artifact@v4
-        with:
-          name: wheels-linux-x86_64-manylinux
-          path: wheelhouse/*.whl
-
-  wheels-linux-x86_64-musllinux:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: pypa/cibuildwheel@v2.23
-        env:
-          CIBW_ARCHS: x86_64
-          CIBW_SKIP: pp* *-manylinux_*
-          CIBW_BUILD: cp39-* cp310-* cp311-* cp312-* cp313-* cp314-*
-      - uses: actions/upload-artifact@v4
-        with:
-          name: wheels-linux-x86_64-musllinux
-          path: wheelhouse/*.whl
-
-  wheels-linux-aarch64-manylinux:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm64
-      - uses: pypa/cibuildwheel@v2.23
-        env:
-          CIBW_ARCHS: aarch64
-          CIBW_SKIP: pp* *-musllinux_*
-          CIBW_BUILD: cp39-* cp310-* cp311-* cp312-* cp313-* cp314-*
-      - uses: actions/upload-artifact@v4
-        with:
-          name: wheels-linux-aarch64-manylinux
-          path: wheelhouse/*.whl
-
-  wheels-linux-aarch64-musllinux:
-    runs-on: ubuntu-latest
+  wheels:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x86_64
+            skip: "pp* *-musllinux_*"
+            name: linux-x86_64-manylinux
+          - os: ubuntu-latest
+            arch: x86_64
+            skip: "pp* *-manylinux_*"
+            name: linux-x86_64-musllinux
+          - os: ubuntu-latest
+            arch: aarch64
+            skip: "pp* *-musllinux_*"
+            name: linux-aarch64-manylinux
+            qemu: true
+          - os: ubuntu-latest
+            arch: aarch64
+            skip: "pp* *-manylinux_*"
+            name: linux-aarch64-musllinux
+            qemu: true
+          - os: macos-13
+            arch: x86_64
+            skip: "pp*"
+            name: macos-x86_64
+          - os: macos-14
+            arch: arm64
+            skip: "pp*"
+            name: macos-arm64
+          - os: windows-latest
+            arch: AMD64
+            skip: "pp*"
+            name: windows-x86_64
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - uses: docker/setup-qemu-action@v3
+        if: matrix.qemu
         with:
           platforms: arm64
       - uses: pypa/cibuildwheel@v2.23
         env:
-          CIBW_ARCHS: aarch64
-          CIBW_SKIP: pp* *-manylinux_*
+          CIBW_ARCHS: ${{ matrix.arch }}
+          CIBW_SKIP: ${{ matrix.skip }}
           CIBW_BUILD: cp39-* cp310-* cp311-* cp312-* cp313-* cp314-*
       - uses: actions/upload-artifact@v4
         with:
-          name: wheels-linux-aarch64-musllinux
-          path: wheelhouse/*.whl
-
-  wheels-macos-x86_64:
-    runs-on: macos-13
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: pypa/cibuildwheel@v2.23
-        env:
-          CIBW_ARCHS: x86_64
-          CIBW_SKIP: pp*
-          CIBW_BUILD: cp39-* cp310-* cp311-* cp312-* cp313-* cp314-*
-      - uses: actions/upload-artifact@v4
-        with:
-          name: wheels-macos-x86_64
-          path: wheelhouse/*.whl
-
-  wheels-macos-arm64:
-    runs-on: macos-14
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: pypa/cibuildwheel@v2.23
-        env:
-          CIBW_ARCHS: arm64
-          CIBW_SKIP: pp*
-          CIBW_BUILD: cp39-* cp310-* cp311-* cp312-* cp313-* cp314-*
-      - uses: actions/upload-artifact@v4
-        with:
-          name: wheels-macos-arm64
-          path: wheelhouse/*.whl
-
-  wheels-windows-x86_64:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: pypa/cibuildwheel@v2.23
-        env:
-          CIBW_ARCHS: AMD64
-          CIBW_SKIP: pp*
-          CIBW_BUILD: cp39-* cp310-* cp311-* cp312-* cp313-* cp314-*
-      - uses: actions/upload-artifact@v4
-        with:
-          name: wheels-windows-x86_64
+          name: wheels-${{ matrix.name }}
           path: wheelhouse/*.whl
 
   publish:
-    needs:
-      - sdist
-      - wheels-linux-x86_64-manylinux
-      - wheels-linux-x86_64-musllinux
-      - wheels-linux-aarch64-manylinux
-      - wheels-linux-aarch64-musllinux
-      - wheels-macos-x86_64
-      - wheels-macos-arm64
-      - wheels-windows-x86_64
+    needs: [sdist, wheels]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
