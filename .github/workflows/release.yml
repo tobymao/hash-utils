@@ -25,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ["cp39", "cp310", "cp311", "cp312", "cp313"]
+        python: ["cp39", "cp310", "cp311", "cp312", "cp313", "cp314"]
         platform:
           - os: ubuntu-latest
             arch: x86_64
@@ -71,6 +71,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.platform.arch }}
           CIBW_BUILD: "${{ matrix.python }}-*"
           CIBW_SKIP: "pp* ${{ matrix.platform.skip }}"
+          CIBW_PRERELEASE_PYTHONS: "1"
       - uses: actions/upload-artifact@v7
         with:
           name: wheels-${{ matrix.platform.name }}-${{ matrix.python }}
