@@ -1,7 +1,10 @@
-.PHONY: install build test test-compiled lint format clean
+.PHONY: install install-release build test test-compiled style clean
 
 install:
-	pip install -e ".[dev]"
+	MYPYC_OPT_LEVEL=0 pip install -e ".[dev]"
+
+install-release:
+	MYPYC_OPT_LEVEL=3 pip install -e ".[dev]"
 
 build:
 	mypyc hash_utils/_core.py
@@ -11,11 +14,8 @@ test:
 
 test-compiled: build test
 
-lint:
-	ruff check .
-	ruff format --check .
-
-format:
+style:
+	ruff check --fix .
 	ruff format .
 
 clean:

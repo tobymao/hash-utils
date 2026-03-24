@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=68", "mypy>=1.0", "mypy-extensions>=1.0"]
+requires = ["setuptools>=68", "setuptools-scm>=8", "mypy>=1.0", "mypy-extensions>=1.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "hash-utils"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Fast deterministic dict hashing via mypyc"
 readme = "README.md"
 license = "MIT"
@@ -26,15 +26,18 @@ classifiers = [
 
 [project.optional-dependencies]
 dev = [
-    "mypy>=1.0",
-    "pytest>=7.0",
-    "ruff>=0.4",
+    "mypy>=1.19",
+    "pytest>=9.0",
+    "ruff>=0.15",
 ]
 
 [project.urls]
 Homepage = "https://github.com/tobymao/hash-utils"
 Repository = "https://github.com/tobymao/hash-utils"
 Issues = "https://github.com/tobymao/hash-utils/issues"
+
+[tool.setuptools_scm]
+version_file = "hash_utils/_version.py"
 
 [tool.setuptools.packages.find]
 include = ["hash_utils*"]

@@ -3,6 +3,7 @@ __pycache__/
 *.so
 *.pyd
 *.egg-info/
+hash_utils/_version.py
 dist/
 build/
 .venv/
