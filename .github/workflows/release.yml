@@ -47,7 +47,7 @@ jobs:
             arch: x86_64
             skip: "pp*"
             name: macos-x86_64
-          - os: macos-14
+          - os: macos-latest
             arch: arm64
             skip: "pp*"
             name: macos-arm64
