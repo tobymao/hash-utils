@@ -43,7 +43,7 @@ jobs:
             skip: "pp* *-manylinux_*"
             name: linux-aarch64-musllinux
             qemu: true
-          - os: macos-13
+          - os: macos-latest
             arch: x86_64
             skip: "pp*"
             name: macos-x86_64
