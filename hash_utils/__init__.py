@@ -1,8 +1,8 @@
 """Fast deterministic dict hashing via mypyc."""
 
-from hash_utils._core import dict_hash, shape_hash
-from hash_utils._version import (
-    __version__,  # type: ignore[import-not-found]  # noqa: F401
-)
+from importlib.metadata import version
 
+from hash_utils._core import dict_hash, shape_hash
+
+__version__ = version("hash-utils")
 __all__ = ["dict_hash", "shape_hash"]

@@ -37,7 +37,6 @@ Repository = "https://github.com/tobymao/hash-utils"
 Issues = "https://github.com/tobymao/hash-utils/issues"
 
 [tool.setuptools_scm]
-version_file = "hash_utils/_version.py"
 
 [tool.setuptools.packages.find]
 include = ["hash_utils*"]
