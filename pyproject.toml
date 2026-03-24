@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=68", "mypy>=1.0", "mypy-extensions>=1.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hash-utils"
+version = "0.1.0"
+description = "Fast deterministic dict hashing via mypyc"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.9"
+authors = [{name = "Toby Mao"}]
+dependencies = ["mypy-extensions>=1.0"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+]
+
+[project.optional-dependencies]
+dev = [
+    "mypy>=1.0",
+    "pytest>=7.0",
+    "ruff>=0.4",
+]
+
+[project.urls]
+Homepage = "https://github.com/tobymao/hash-utils"
+Repository = "https://github.com/tobymao/hash-utils"
+Issues = "https://github.com/tobymao/hash-utils/issues"
+
+[tool.setuptools.packages.find]
+include = ["hash_utils*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+"hash_utils/_core.py" = ["UP006", "UP035"]  # typing.Dict/List required for mypyc + Python 3.9
