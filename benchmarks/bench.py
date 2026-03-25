@@ -1,6 +1,5 @@
 """Benchmarks for dict_hash and shape_hash (pure Python vs mypyc)."""
 
-import binascii
 import json
 import time
 import zlib

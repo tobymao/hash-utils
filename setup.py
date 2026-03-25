@@ -10,8 +10,6 @@ try:
 except ImportError:
     ext_modules = []
 
-ext_modules.append(
-    Extension("hash_utils._fnv64", sources=["hash_utils/_fnv64.c"])
-)
+ext_modules.append(Extension("hash_utils._fnv64", sources=["hash_utils/_fnv64.c"]))
 
 setup(ext_modules=ext_modules)
