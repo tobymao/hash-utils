@@ -9,17 +9,6 @@ from typing import Dict, List
 
 from mypy_extensions import i64
 
-# Type tags for shape hashing — distinct primes for good mixing
-_TAG_NONE: i64 = 7
-_TAG_BOOL_T: i64 = 11
-_TAG_BOOL_F: i64 = 13
-_TAG_INT: i64 = 17
-_TAG_FLOAT: i64 = 19
-_TAG_STR: i64 = 23
-_TAG_DICT: i64 = 29
-_TAG_LIST: i64 = 31
-_TAG_OTHER: i64 = 37
-
 
 def _hash_to_i64(obj: object) -> i64:
     """Get the Python hash of an object as a native i64."""
@@ -43,7 +32,7 @@ def dict_hash(d: Dict[object, object]) -> int:
         item: object = stack.pop()
 
         if item is None:
-            h = _mix(h, _TAG_NONE)
+            h = _mix(h, 7)
         elif isinstance(item, bool):
             h = _mix(h, 1 if item else 2)
         elif isinstance(item, int):
@@ -90,17 +79,17 @@ def shape_hash(d: Dict[object, object]) -> int:
         item: object = stack.pop()
 
         if item is None:
-            h = _mix(h, _TAG_NONE)
+            h = _mix(h, 7)
         elif isinstance(item, bool):
-            h = _mix(h, _TAG_BOOL_T if item else _TAG_BOOL_F)
+            h = _mix(h, 11 if item else 13)
         elif isinstance(item, int):
-            h = _mix(h, _TAG_INT)
+            h = _mix(h, 17)
         elif isinstance(item, float):
-            h = _mix(h, _TAG_FLOAT)
+            h = _mix(h, 19)
         elif isinstance(item, str):
-            h = _mix(h, _TAG_STR)
+            h = _mix(h, 23)
         elif isinstance(item, dict):
-            h = _mix(h, _TAG_DICT)
+            h = _mix(h, 29)
             keys: List[object] = sorted(item)
             n: i64 = i64(len(keys))
             h = _mix(h, n)
@@ -111,7 +100,7 @@ def shape_hash(d: Dict[object, object]) -> int:
                 stack.append(item[k])
                 i -= 1
         elif isinstance(item, list):
-            h = _mix(h, _TAG_LIST)
+            h = _mix(h, 31)
             n = i64(len(item))
             h = _mix(h, n)
             i = n - 1
@@ -119,6 +108,6 @@ def shape_hash(d: Dict[object, object]) -> int:
                 stack.append(item[i])
                 i -= 1
         else:
-            h = _mix(h, _TAG_OTHER)
+            h = _mix(h, 37)
 
     return int(h)

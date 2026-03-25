@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from hash_utils import dict_hash, shape_hash
+from hash_utils import dict_hash, fnv64, shape_hash
 
 
 class TestDictHash:
@@ -238,3 +238,49 @@ class TestDictHashVsShapeHash:
         d2 = {"a": {"b": 1}}
         assert dict_hash(d1) != dict_hash(d2)
         assert shape_hash(d1) != shape_hash(d2)
+
+
+class TestFnv64:
+    def test_deterministic(self):
+        data = b"hello world"
+        assert fnv64(data) == fnv64(data)
+
+    def test_empty(self):
+        h = fnv64(b"")
+        assert isinstance(h, int)
+        # FNV offset basis as signed i64
+        assert h == -3750763034362895579
+
+    def test_different_inputs_differ(self):
+        assert fnv64(b"abc") != fnv64(b"abd")
+
+    def test_single_byte(self):
+        assert fnv64(b"\x00") != fnv64(b"\x01")
+
+    def test_order_matters(self):
+        assert fnv64(b"ab") != fnv64(b"ba")
+
+    def test_length_matters(self):
+        assert fnv64(b"a") != fnv64(b"aa")
+
+    def test_returns_int(self):
+        assert isinstance(fnv64(b"test"), int)
+
+    def test_known_value(self):
+        # FNV-1a reference: step through offset/prime manually
+        h = 14695981039346656037
+        p = 1099511628211
+        for c in b"hello":
+            h = ((h ^ c) * p) % (2**64)
+        expected = h if h < 2**63 else h - 2**64  # signed
+        assert fnv64(b"hello") == expected
+
+    def test_accepts_bytearray(self):
+        assert fnv64(bytearray(b"test data")) == fnv64(b"test data")
+
+    def test_accepts_memoryview(self):
+        assert fnv64(memoryview(b"test data")) == fnv64(b"test data")
+
+    def test_no_collisions_10k(self):
+        hashes = {fnv64(f"string_{i}".encode()) for i in range(10_000)}
+        assert len(hashes) == 10_000

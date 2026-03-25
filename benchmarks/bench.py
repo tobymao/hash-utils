@@ -1,7 +1,9 @@
 """Benchmarks for dict_hash and shape_hash (pure Python vs mypyc)."""
 
+import binascii
 import json
 import time
+import zlib
 
 N = 10_000
 
@@ -90,5 +92,60 @@ def main() -> None:
         bench("shape_hash (mypyc)", shape_hash, dicts)
 
 
+def bench_fnv64() -> None:
+    """Benchmark fnv64 vs dual crc32."""
+    import hash_utils._core as core_mod
+
+    mod_file = getattr(core_mod, "__file__", "")
+    is_compiled = mod_file.endswith((".so", ".pyd"))
+
+    # Generate byte payloads from the same dicts
+    dicts = make_dicts(N)
+    payloads = [json.dumps(d, sort_keys=True).encode() for d in dicts]
+    total_bytes = sum(len(p) for p in payloads)
+
+    print(f"\nfnv64 Benchmark: {N:,} payloads ({total_bytes / 1024:.0f} KB total)")
+    print(f"mypyc compiled: {is_compiled}\n")
+    print(f"{'Method':40s}  {'Time':>7s}  {'Throughput':>12s}")
+    print("-" * 66)
+
+    def bench_bytes(name: str, fn) -> None:
+        for p in payloads[:100]:
+            fn(p)
+        start = time.perf_counter()
+        for p in payloads:
+            fn(p)
+        elapsed = time.perf_counter() - start
+        ops = len(payloads) / elapsed
+        print(f"{name:40s}  {elapsed:.4f}s  {ops:>10,.0f} ops/s")
+
+    def dual_crc32(data: bytes) -> str:
+        return f"{zlib.crc32(data)}_{zlib.crc32(data, 1)}"
+
+    bench_bytes("2x zlib.crc32 -> str", dual_crc32)
+
+    import importlib.util
+    import pathlib
+
+    core_py = pathlib.Path(__file__).resolve().parent.parent / "hash_utils" / "_core.py"
+    spec = importlib.util.spec_from_file_location("_core_pure2", core_py)
+    pure = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(pure)
+    bench_bytes("fnv64 (pure python)", pure.fnv64)
+
+    if is_compiled:
+        from hash_utils._core import fnv64 as fnv64_mypyc
+
+        bench_bytes("fnv64 (mypyc)", fnv64_mypyc)
+
+    try:
+        from hash_utils._fnv64 import fnv64
+
+        bench_bytes("fnv64 (C)", fnv64)
+    except ImportError:
+        print("fnv64 (C)                                (not built)")
+
+
 if __name__ == "__main__":
     main()
+    bench_fnv64()
