@@ -7,7 +7,7 @@ All hashing is **deterministic across processes** — immune to `PYTHONHASHSEED`
 ## Functions
 
 - **`dict_hash(d)`** — deterministic hash of a nested dict's full content (keys + values)
-- **`shape_hash(d)`** — structural hash that ignores string/int/float values, only hashing keys, value types, and bools
+- **`shape_hash(d)`** — structural hash that ignores string/int/float values, only hashing keys, value types, bools, and structure
 - **`fnv64(data)`** — fast 64-bit FNV-1a hash for str/bytes/bytearray (C extension)
 
 ## Install
