@@ -1,12 +1,14 @@
 # hash-utils
 
-Fast deterministic dict hashing via mypyc, plus a 64-bit FNV-1a hash for bytes.
+Fast deterministic dict hashing via mypyc, plus a 64-bit FNV-1a hash for strings and bytes.
+
+All hashing is **deterministic across processes** — immune to `PYTHONHASHSEED` randomization.
 
 ## Functions
 
 - **`dict_hash(d)`** — deterministic hash of a nested dict's full content (keys + values)
-- **`shape_hash(d)`** — structural hash that ignores string/int/float values, only hashing keys, value types, bools, and container lengths
-- **`fnv64(data)`** — fast 64-bit FNV-1a hash for bytes/bytearray/memoryview (C extension)
+- **`shape_hash(d)`** — structural hash that ignores string/int/float values, only hashing keys, value types, and bools
+- **`fnv64(data)`** — fast 64-bit FNV-1a hash for str/bytes/bytearray (C extension)
 
 ## Install
 
@@ -28,26 +30,27 @@ dict_hash(d1) != dict_hash(d2)
 # Shape hash — same structure produces same hash
 shape_hash(d1) == shape_hash(d2)
 
-# Fast 64-bit hash of bytes
+# Fast 64-bit hash for strings and bytes
 fnv64(b"hello world")
+fnv64("hello world")
 ```
 
 ## Why
 
 `shape_hash` enables massive deduplication for jsonschema validation. If 13,000 dicts share the same structure but differ only in string values, they collapse to 1 unique shape — skip 12,999 redundant validations.
 
-`fnv64` provides a fast non-cryptographic 64-bit hash for bytes data — 2x faster than dual-crc32, ~2x faster than md5/sha256, with zero expected collisions under 5 billion inputs.
+`fnv64` provides a fast non-cryptographic 64-bit hash — 2x faster than dual-crc32, with zero expected collisions under 5 billion inputs. Accepts str (zero-copy UTF-8) and bytes.
 
 ## Performance
 
-Dict hashing compiled via mypyc to native C. `fnv64` is a C extension with zero Python object boxing in the inner loop.
+Dict traversal compiled via mypyc to native C. `fnv64` is a C extension using `PyUnicode_AsUTF8AndSize` for zero-copy string access.
 
 | Method | ops/s | Notes |
 |---|---|---|
-| `fnv64` (C) | 1,750K | 64-bit, raw byte buffer |
+| `fnv64` (C) | 2,000K | 64-bit, str/bytes |
 | `2x zlib.crc32 → str` | 950K | 64-bit via concatenation |
-| `shape_hash` (mypyc) | 390K | nested dict structure |
-| `dict_hash` (mypyc) | 340K | nested dict full content |
+| `shape_hash` (mypyc) | 320K | nested dict structure |
+| `dict_hash` (mypyc) | 250K | nested dict full content |
 | `json.dumps + hash` | 115K | stdlib baseline |
 
 ## Development
