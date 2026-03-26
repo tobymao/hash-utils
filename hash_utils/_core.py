@@ -98,11 +98,8 @@ def shape_hash(d: Dict[object, object]) -> int:
                 i -= 1
         elif isinstance(item, list):
             h = _mix(h, 31)
-            n = i64(len(item))
-            i = n - 1
-            while i >= 0:
-                stack.append(item[i])
-                i -= 1
+            if len(item) > 0:
+                stack.append(item[0])
         else:
             h = _mix(h, 37)
 

@@ -148,8 +148,19 @@ class TestShapeHash:
         d2 = {"a": 1}
         assert shape_hash(d1) != shape_hash(d2)
 
-    def test_list_length_matters(self):
+    def test_list_length_ignored(self):
+        """Same element types, different lengths — same shape."""
         d1 = {"items": [1, 2, 3]}
+        d2 = {"items": [1]}
+        assert shape_hash(d1) == shape_hash(d2)
+
+    def test_list_element_type_matters(self):
+        d1 = {"items": [1]}
+        d2 = {"items": ["hello"]}
+        assert shape_hash(d1) != shape_hash(d2)
+
+    def test_empty_list_vs_nonempty(self):
+        d1 = {"items": []}
         d2 = {"items": [1]}
         assert shape_hash(d1) != shape_hash(d2)
 
