@@ -22,6 +22,6 @@ style:
 	ruff format .
 
 clean:
-	rm -rf build/ dist/ *.egg-info .pytest_cache
+	rm -rf build/ dist/ *.egg-info .pytest_cache .mypy_cache
 	rm -f hash_utils/*.so hash_utils/*.pyd
 	find . -type d -name __pycache__ -exec rm -rf {} +

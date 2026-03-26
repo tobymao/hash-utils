@@ -5,14 +5,11 @@ explicit stack.  Accumulates a native i64 hash via bit mixing.
 Designed to be compiled with mypyc.
 """
 
-from typing import Dict, List
+from typing import Callable, Dict, List
 
 from mypy_extensions import i64
 
-
-def _hash_to_i64(obj: object) -> i64:
-    """Get the Python hash of an object as a native i64."""
-    return i64(hash(obj))
+from hash_utils._fnv64 import fnv64  # type: ignore[import-not-found]
 
 
 def _mix(h: i64, v: i64) -> i64:
@@ -25,6 +22,7 @@ def _mix(h: i64, v: i64) -> i64:
 
 def dict_hash(d: Dict[object, object]) -> int:
     """Deterministic hash of a nested dict — full values."""
+    _f: Callable[[object], int] = fnv64
     h: i64 = 0
     stack: List[object] = [d]
 
@@ -36,31 +34,30 @@ def dict_hash(d: Dict[object, object]) -> int:
         elif isinstance(item, bool):
             h = _mix(h, 1 if item else 2)
         elif isinstance(item, int):
-            h = _mix(h, _hash_to_i64(item))
+            h = _mix(h, i64(hash(item)))
         elif isinstance(item, float):
-            h = _mix(h, _hash_to_i64(item))
+            h = _mix(h, i64(hash(item)))
         elif isinstance(item, str):
-            h = _mix(h, _hash_to_i64(item))
-            h = _mix(h, i64(len(item)))
+            h = _mix(h, i64(_f(item)))
         elif isinstance(item, dict):
+            h = _mix(h, 29)
             keys: List[object] = sorted(item)
             n: i64 = i64(len(keys))
-            h = _mix(h, n)
             i: i64 = n - 1
             while i >= 0:
                 k: object = keys[i]
-                h = _mix(h, _hash_to_i64(k))
+                h = _mix(h, i64(_f(k)))
                 stack.append(item[k])
                 i -= 1
         elif isinstance(item, list):
+            h = _mix(h, 31)
             n = i64(len(item))
-            h = _mix(h, n)
             i = n - 1
             while i >= 0:
                 stack.append(item[i])
                 i -= 1
         else:
-            h = _mix(h, _hash_to_i64(item))
+            h = _mix(h, i64(_f(item)))
 
     return int(h)
 
@@ -72,6 +69,7 @@ def shape_hash(d: Dict[object, object]) -> int:
     Two dicts with the same structure always produce the same
     jsonschema validation result, so this is safe for dedup.
     """
+    _f: Callable[[object], int] = fnv64
     h: i64 = 0
     stack: List[object] = [d]
 
@@ -92,17 +90,15 @@ def shape_hash(d: Dict[object, object]) -> int:
             h = _mix(h, 29)
             keys: List[object] = sorted(item)
             n: i64 = i64(len(keys))
-            h = _mix(h, n)
             i: i64 = n - 1
             while i >= 0:
                 k: object = keys[i]
-                h = _mix(h, _hash_to_i64(k))
+                h = _mix(h, i64(_f(k)))
                 stack.append(item[k])
                 i -= 1
         elif isinstance(item, list):
             h = _mix(h, 31)
             n = i64(len(item))
-            h = _mix(h, n)
             i = n - 1
             while i >= 0:
                 stack.append(item[i])

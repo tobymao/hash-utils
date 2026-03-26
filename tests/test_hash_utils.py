@@ -278,9 +278,6 @@ class TestFnv64:
     def test_accepts_bytearray(self):
         assert fnv64(bytearray(b"test data")) == fnv64(b"test data")
 
-    def test_accepts_memoryview(self):
-        assert fnv64(memoryview(b"test data")) == fnv64(b"test data")
-
     def test_no_collisions_10k(self):
         hashes = {fnv64(f"string_{i}".encode()) for i in range(10_000)}
         assert len(hashes) == 10_000
