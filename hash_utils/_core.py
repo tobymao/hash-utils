@@ -98,8 +98,31 @@ def shape_hash(d: Dict[object, object]) -> int:
                 i -= 1
         elif isinstance(item, list):
             h = _mix(h, 31)
-            if len(item) > 0:
-                stack.append(item[0])
+            type_mask: i64 = 0
+            n = i64(len(item))
+            i = n - 1
+            while i >= 0:
+                el: object = item[i]
+                if el is None:
+                    type_mask = type_mask | 1
+                elif isinstance(el, bool):
+                    type_mask = type_mask | 2
+                elif isinstance(el, int):
+                    type_mask = type_mask | 4
+                elif isinstance(el, float):
+                    type_mask = type_mask | 8
+                elif isinstance(el, str):
+                    type_mask = type_mask | 16
+                elif isinstance(el, dict):
+                    type_mask = type_mask | 32
+                    stack.append(el)
+                elif isinstance(el, list):
+                    type_mask = type_mask | 64
+                    stack.append(el)
+                else:
+                    type_mask = type_mask | 128
+                i -= 1
+            h = _mix(h, type_mask)
         else:
             h = _mix(h, 37)
 

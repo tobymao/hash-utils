@@ -164,6 +164,12 @@ class TestShapeHash:
         d2 = {"items": [1]}
         assert shape_hash(d1) != shape_hash(d2)
 
+    def test_mixed_type_list_differs(self):
+        """[int, str] has a different shape than [int, int]."""
+        d1 = {"items": [1, "hello"]}
+        d2 = {"items": [1, 2]}
+        assert shape_hash(d1) != shape_hash(d2)
+
     def test_nested_shape_same(self):
         """Two dicts with identical structure but different leaf values."""
         d1 = {
